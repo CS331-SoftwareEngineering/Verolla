@@ -12,5 +12,6 @@ The Administrator is responsible for managing, configuring, and supervising the 
 - View Data and Alert History  
 - Role Management
 - Alerts Management
+- Escalate Alerts
 
 The Administrator ensures the system operates reliably, maintains system health, manages user roles, and handles alert escalation when abnormal conditions are detected.
