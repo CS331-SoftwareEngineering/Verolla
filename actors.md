@@ -8,10 +8,6 @@ They configure monitoring thresholds, manage users, view detailed system metrics
 Normal users can view system health information and receive alerts.  
 They monitor dashboards, check alerts, and view data based on the permissions granted by the admin.
 
-### Monitoring Agents
-Monitoring agents are background components installed on systems or servers.  
-They continuously collect performance metrics such as CPU usage, memory usage, disk usage, and application status.
-
 ### Artificial Intelligence Models
 AI models analyze collected metrics and historical data.  
 They help detect anomalies, predict potential failures, and reduce false alerts.
