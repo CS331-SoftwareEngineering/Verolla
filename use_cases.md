@@ -10,5 +10,5 @@ This use case allows users to acknowledge or resolve alerts after reviewing them
 ### Threshold Change  
 This use case allows authorized users to modify threshold values for system metrics. Updated thresholds are applied immediately and affect future alert generation.
 
-### Notification Options  
+### Notification 
 This use case allows users to configure how they receive alerts and system notifications, such as through email. The system ensures notifications are sent according to the selected preferences.
