@@ -13,3 +13,7 @@ This use case allows users to view previously collected system metrics over sele
 ### Data Filtering and Searching  
 This use case enables users to filter and search Data based on specific criteria such as date, severity level, or service name. This helps users quickly locate relevant data entries for debugging and analysis.
 
+### Escalate Alerts
+This use case enables users to escalate alerts when an issue is not acknowledged or resolved within a defined time frame or when the severity of the issue increases. Escalation ensures that critical alerts are forwarded to higher-level users or administrators for immediate attention. The system may notify additional recipients, increase the alert priority, or trigger alternative notification channels to prevent prolonged system impact.
+
+
