@@ -29,10 +29,8 @@ The following associations represent direct communication or interaction between
 - Threshold Change
 - Notification Options  
 
-### Monitoring Agents
-- Metrics Management  
-
 ### Artificial Intelligence Models
+- Metrics Management  
 - Alerts Management  
 
 ### Notification Services
