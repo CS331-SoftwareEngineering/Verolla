@@ -2,7 +2,7 @@
 
 ## Registered Users
 
-Represents end users who consume alerts and system information.
+Represents registered end users who consume alerts and system information.
 
 ### Interactions:
 - User Login
