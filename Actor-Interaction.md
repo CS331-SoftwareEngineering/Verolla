@@ -1,13 +1,12 @@
 # Actors and Their Interactions
 
-## Normal User
+## Registered Users
 
 Represents end users who consume alerts and system information.
 
 ### Interactions:
-
-- User Registration
 - User Login
+- User Profile Management
 - View Dashboard
 - View Alerts
 - Acknowledge Alerts
