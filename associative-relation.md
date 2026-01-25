@@ -4,42 +4,50 @@ The following associations represent direct communication or interaction between
 
 
 ### Admin
-- User Registration  
-- Login  
-- User Profile Management  
+- Admin Login  
 - Role Management  
-- Dashboard View  
-- Historical Data View  
-- View Logs  
-- Log Filtering and Searching  
+- View Dashboard  
+- Monitor System Metrics  
+- Configure Monitoring Rules and Thresholds
+- View Data and Alert History
 - Alerts Management  
-- Alert Acknowledgement  
-- Threshold Change  
-- Notification Options  
+- Escalate Alerts
 
-### Normal User
-- User Registration  
-- Login  
+### Registered User
+- User Login  
 - User Profile Management  
-- Dashboard View  
-- Historical Data View  
-- View Logs
-- Log Filtering and Searching  
+- View Dashboard 
+- View Alerts
+- Data Filtering and Searching  
 - Alert Acknowledgement
-- Threshold Change
-- Notification Options  
+- Change Threshold 
+- Change Notification Settings
+
+### Unregistered User
+- User Registration  
+- View Dashboard
 
 ### Artificial Intelligence Models
 - Metrics Management  
-- Alerts Management  
+- Dashboard view
+- Historical Data view
+- Data Filtering and Searching
+- Alerts Management
+- Alerts Acknowledgement
 
 ### Notification Services
 - Notification Options  
-- Alert Delivery  
+- Alerts Management
+- Alerts Acknowledgement
+- Notification Options
+- Escalate Alerts  
 
 ### External Systems / APIs
-- Metrics Management  
-- Alerts Management  
-- Alert Delivery  
-- Historical Data View  
-- System Integration Support  
+- Login
+- View DashBoard 
+- Historical Data View
+- Data Filtering and Searching
+- Alerts Management
+- Alert Acknowledgement
+- Threshold Change
+- Notification Options
