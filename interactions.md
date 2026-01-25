@@ -15,3 +15,11 @@ The Administrator is responsible for managing, configuring, and supervising the 
 - Escalate Alerts
 
 The Administrator ensures the system operates reliably, maintains system health, manages user roles, and handles alert escalation when abnormal conditions are detected.
+
+### Unregistered Users
+
+The UnRegistered Users are the Users who dont have their account in this systen
+
+#### Interactions
+- User Registration
+- DashBoard View
