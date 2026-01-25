@@ -1,14 +1,27 @@
-# Use Case Descriptions  
+# Use Case Descriptions
 ## Monitoring & Alert Automation System
 
-### Alerts Management  
-This use case allows the system to automatically generate alerts when monitored metrics exceed predefined threshold values. The system manages active and resolved alerts and displays them to users for timely awareness.
+### Alert Generation
+This use case enables the system to automatically generate alerts when monitored system metrics exceed predefined threshold values. The system continuously evaluates incoming metrics and creates alerts with appropriate severity levels. Generated alerts are stored, managed, and displayed to users to ensure timely awareness of abnormal system conditions.
 
-### Alert Acknowledgement  
-This use case allows users to acknowledge or resolve alerts after reviewing them. Acknowledged alerts are marked accordingly to avoid duplicate handling and to maintain alert status clarity.
+---
 
-### Threshold Change  
-This use case allows authorized users to modify threshold values for system metrics. Updated thresholds are applied immediately and affect future alert generation.
+### Alert Sending
+This use case is responsible for delivering generated alerts to users through configured notification channels. Once an alert is generated, the system sends notifications via channels such as email, SMS, or push notifications based on user preferences and alert severity. The system ensures reliable and timely delivery of alerts to the intended recipients.
 
-### Notification 
-This use case allows users to configure how they receive alerts and system notifications, such as through email. The system ensures notifications are sent according to the selected preferences.
+---
+
+### Alert Acknowledgement
+This use case allows users to acknowledge or resolve alerts after reviewing them. Acknowledged alerts are marked accordingly in the system to prevent repeated notifications and to maintain accurate alert status tracking. This helps distinguish between active, acknowledged, and resolved alerts.
+
+---
+
+### Threshold Change
+This use case allows authorized users, such as administrators, to modify threshold values for monitored system metrics. Updated threshold values are applied immediately and influence subsequent anomaly detection and alert generation processes.
+
+---
+
+### Notification Configuration
+This use case allows users to configure how they receive alerts and system notifications. Users can select preferred notification channels, such as email, SMS, or push notifications, and customize notification behavior based on alert severity. The system ensures alerts are delivered according to the configured preferences.
+
+---
