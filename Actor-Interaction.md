@@ -9,10 +9,9 @@ Represents registered end users who consume alerts and system information.
 - User Profile Management
 - View Dashboard
 - View Alerts
-- Acknowledge Alerts
 - Change Threshhold
 - Change Notification Settings
-- Data Filtering and searching
+- Historical Data View
 
 ## External Systems
 
@@ -22,7 +21,6 @@ External systems or APIs act as supporting actors that integrate with the Monito
 - Login
 - DashBoard View
 - Historical Data View
-- Data Filtering and Searching
-- Alert Acknowledgement
-- Threshold Change
-- Notification Options
+- View Alerts
+- Change Threshold
+- Change Notification Settings
