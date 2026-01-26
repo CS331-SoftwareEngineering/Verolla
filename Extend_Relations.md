@@ -1,11 +1,12 @@
-## Extend Relations
+## Use Case «extend» Relationships
 
-<<extend>> means the extended use case happens only under certain conditions.
+The following «extend» relationships represent **optional or conditional behaviors** that occur only under specific circumstances:
 
-# Acknowledge Alerts <<extend>> Generate Alerts
+- **Alert Acknowledgement** → «extend» **View Alerts**  
+  Alerts are acknowledged only if the user chooses to respond after viewing them.
 
-Alert acknowledgement happens only after an alert has been generated.
+- **Escalate Alerts** → «extend» **Alert Generation**  
+  Alert escalation occurs only when an alert is not acknowledged within a defined time limit.
 
-# Escalate Alerts <<extend>> Acknowledge Alerts
-
-If alerts are not acknowledged within a defined time or severity threshold, escalation occurs.
+- **Data Filtering and Searching** → «extend» **Historical Data View**  
+  Filtering and searching are performed only when the user applies search or filter criteria.
