@@ -27,14 +27,6 @@ The following associations represent direct communication or interaction between
 - User Registration  
 - View Dashboard
 
-### Artificial Intelligence Models
-- Metrics Management  
-- Dashboard view
-- Historical Data view
-- Data Filtering and Searching
-- Alerts Management
-- Alerts Acknowledgement
-
 ### Notification Services
 - Notification Options  
 - Alerts Management
