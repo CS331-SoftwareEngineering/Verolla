@@ -1,23 +1,23 @@
 
-## Alerts 
-# Attributes :-
+# Alerts 
+## Attributes :-
 alertId
 severity (enum)
 status (enum)
-# Methods :-
+## Methods :-
 generateAlert()
 escalate()
 closeAlert()
 
-## Notification 
-# Attributes :-
+# Notification 
+## Attributes :-
 notificationId
-# Methods :-
+## Methods :-
 sendEmail()
 sendSMS()
 
 
-## AI Model 
-# Methods :-)
+# AI Model 
+## Methods :-)
 predictAnomaly()
 
