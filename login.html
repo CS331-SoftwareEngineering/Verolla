@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Monitor | Secure Node Access</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --alert: #ff3c00;
+            --success: #00ff95;
+            --bg: #03070a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* --- DYNAMIC MONITORING BACKGROUND --- */
+        .bg-system {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #0a192f 0%, #03070a 100%);
+        }
+
+        /* Symbol Base Style */
+        .icon {
+            position: absolute;
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 1.2;
+            opacity: 0.12;
+            filter: drop-shadow(0 0 8px var(--primary));
+            transition: opacity 0.5s;
+        }
+
+        /* Animations */
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.1); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+
+        /* Specific Icon Placements */
+        .setting-1 { width: 120px; top: 5%; right: 5%; animation: spin 20s linear infinite; }
+        .setting-2 { width: 60px; top: 40%; left: 8%; animation: spin 10s linear reverse infinite; }
+        
+        .server-icon { width: 100px; bottom: 10%; right: 10%; animation: pulse 4s infinite; }
+        .cloud-icon { width: 80px; top: 15%; left: 15%; animation: float 6s ease-in-out infinite; }
+        .search-icon { width: 50px; bottom: 25%; left: 20%; transform: rotate(-15deg); }
+        .bell-icon { width: 70px; top: 10%; left: 50%; stroke: var(--alert); animation: pulse 2s infinite; }
+        .shield-icon { width: 90px; bottom: 15%; left: 45%; stroke: var(--success); }
+
+        /* Radar Sweep Effect */
+        .radar {
+            position: absolute;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(0, 242, 255, 0.05) 10%, transparent 20%);
+            top: -50%; left: -50%;
+            animation: spin 8s linear infinite;
+            pointer-events: none;
+        }
+
+        /* --- LOGIN CARD --- */
+        .login-card {
+            width: 420px;
+            padding: 45px;
+            background: rgba(13, 20, 33, 0.85);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0, 242, 255, 0.05);
+            z-index: 10;
+        }
+
+        .login-card h2 {
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-box { margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); background: rgba(0, 242, 255, 0.05); }
+
+        .forgot-link { display: block; text-align: right; font-size: 0.8rem; color: #666; text-decoration: none; margin-bottom: 30px; }
+        .forgot-link:hover { color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary:hover { box-shadow: 0 0 20px var(--primary); transform: translateY(-2px); }
+
+        .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+        .signup { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #888; }
+        .signup a { color: var(--primary); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-system">
+        <div class="radar"></div>
+
+        <svg class="icon setting-1" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.13,5.91,7.62,6.29L5.23,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.72,8.87 c-0.11,0.21-0.06,0.47,0.12,0.61l2.03,1.58C4.84,11.36,4.81,11.68,4.81,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.11-0.21,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.5c-1.93,0-3.5-1.57-3.5-3.5 s1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5S13.93,15.5,12,15.5z"/></svg>
+
+        <svg class="icon setting-2" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.13,5.91,7.62,6.29L5.23,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.72,8.87 c-0.11,0.21-0.06,0.47,0.12,0.61l2.03,1.58C4.84,11.36,4.81,11.68,4.81,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.11-0.21,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.5c-1.93,0-3.5-1.57-3.5-3.5 s1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5S13.93,15.5,12,15.5z"/></svg>
+
+        <svg class="icon server-icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+
+        <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+
+        <svg class="icon bell-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+
+        <svg class="icon shield-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+
+        <svg class="icon cloud-icon" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
+    </div>
+
+    <div class="login-card">
+        <h2>Operator Login</h2>
+        <form>
+            <div class="input-box">
+                <input type="text" placeholder="Username or Email" required>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="Access Password" required>
+            </div>
+            
+            <a href="#" class="forgot-link">Forgot Access Credentials?</a>
+
+            <button type="submit" class="btn btn-primary">Establish Connection</button>
+            <button type="button" class="btn btn-secondary">Login with Device Number</button>
+        </form>
+
+        <div class="signup">
+            New to the network? <a href="#">Create Account</a>
+        </div>
+    </div>
+
+</body>
+</html>
