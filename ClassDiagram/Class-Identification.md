@@ -7,7 +7,6 @@
 - password  
 - emailId  
 - contactNum  
-- role  
 
 ---
 
