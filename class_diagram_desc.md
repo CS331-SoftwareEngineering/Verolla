@@ -4,7 +4,7 @@
 
 ### Attributes
 
-| Attribute      | Visibility | Description                         |
+| Attribute      | Visibility | Description                        |
 |---------------|------------|-------------------------------------|
 | metricId      | private    | Unique identifier for the metric    |
 | metricName    | private    | Name of the metric (CPU, Memory)    |
