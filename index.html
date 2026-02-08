@@ -3,192 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Portal | Monitor & Initialize</title>
+    <title>System Portal | Adaptive Interface</title>
     <style>
         :root {
             --primary-glow: #00f2ff;
-            --bg-dark: #0a0e14;
+            --bg-color: #0a0e14;
             --card-bg: rgba(16, 22, 32, 0.85);
+            --text-main: #ffffff;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(255, 255, 255, 0.2);
+            --particle-color: #00f2ff;
+            --dropdown-bg: #101620;
+            color-scheme: dark; /* This forces native pickers to use dark theme */
+        }
+
+        [data-theme="light"] {
+            --primary-glow: #00a8b3;
+            --bg-color: #f0f4f8;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #2c3e50;
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --input-border: rgba(0, 0, 0, 0.1);
+            --particle-color: #00a8b3;
+            --dropdown-bg: #ffffff;
+            color-scheme: light; /* This forces native pickers to use light theme */
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+            margin: 0; padding: 0; height: 100%;
             font-family: 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-dark);
+            background: var(--bg-color);
+            color: var(--text-main);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.4s ease;
         }
 
-        #bg-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1;
+        #bg-canvas { position: absolute; top: 0; left: 0; z-index: -1; }
+
+        /* Theme Toggle Switch */
+        .theme-switch {
+            position: absolute; top: 30px; right: 30px; z-index: 100;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;
+            color: var(--primary-glow);
+        }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid var(--primary-glow);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px;
+            left: 4px; bottom: 3px; background-color: var(--primary-glow);
+            transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #e0e0e0; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* Theme-aware Date & Select inputs */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: var(--calendar-filter, invert(1)); /* Inverts icon color in dark mode */
+            cursor: pointer;
+        }
+        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+            --calendar-filter: invert(0);
+        }
+
+        select option {
+            background-color: var(--dropdown-bg);
+            color: var(--text-main);
         }
 
         /* Shared Decorative Elements */
         .settings-container {
-            position: absolute;
-            top: 60px;
-            left: 60px;
-            width: 100px;
-            height: 100px;
-            opacity: 0.8;
-            animation: rotate 8s linear infinite;
+            position: absolute; top: 60px; left: 60px; width: 100px; height: 100px;
+            opacity: 0.6; animation: rotate 8s linear infinite;
         }
-
         .settings-container svg {
-            width: 100%;
-            height: 100%;
-            fill: transparent;
-            stroke: var(--primary-glow);
-            stroke-width: 1px;
+            width: 100%; height: 100%; fill: transparent;
+            stroke: var(--primary-glow); stroke-width: 1.5px;
             filter: drop-shadow(0 0 8px var(--primary-glow));
         }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .metrics-container {
-            position: absolute;
-            bottom: 60px;
-            right: 60px;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            height: 80px;
-            padding: 10px;
+            position: absolute; bottom: 60px; right: 60px;
+            display: flex; align-items: flex-end; gap: 12px; height: 80px;
         }
+        .bar { width: 14px; border: 1.5px solid var(--primary-glow); border-radius: 2px; animation: fluctuate var(--duration) ease-in-out infinite; }
+        @keyframes fluctuate { 0%, 100% { height: 20%; opacity: 0.4; } 50% { height: 95%; opacity: 1; } }
 
-        .bar {
-            width: 14px;
-            background: transparent;
-            border: 1.5px solid var(--primary-glow);
-            border-radius: 2px;
-            box-shadow: inset 0 0 5px rgba(0, 242, 255, 0.2), 0 0 10px rgba(0, 242, 255, 0.2);
-            animation: fluctuate var(--duration) ease-in-out infinite;
-        }
-
-        @keyframes fluctuate {
-            0%, 100% { height: 20%; opacity: 0.4; transform: scaleY(1); }
-            50% { height: 95%; opacity: 1; transform: scaleY(1.05); }
-        }
-
-        /* Card Base Styling */
+        /* Card Styling */
         .login-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 15px;
-            border: 1px solid rgba(0, 242, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
-            backdrop-filter: blur(12px);
-            width: 400px;
-            text-align: center;
-            color: white;
-            z-index: 10;
-            display: none; /* Controlled by active class */
+            background: var(--card-bg); padding: 40px; border-radius: 15px;
+            border: 1px solid var(--primary-glow); box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(12px); width: 400px; text-align: center;
+            z-index: 10; display: none; transition: background 0.4s, border 0.4s;
         }
-
         .login-card.active { display: block; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 { 
-            margin-bottom: 20px; 
-            letter-spacing: 3px; 
-            color: var(--primary-glow); 
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .step-indicator {
-            font-size: 0.7rem;
-            color: rgba(0, 242, 255, 0.6);
-            margin-bottom: 25px;
-            letter-spacing: 2px;
-        }
-
+        h2 { margin-bottom: 20px; letter-spacing: 3px; color: var(--primary-glow); text-transform: uppercase; }
+        .step-indicator { font-size: 0.7rem; opacity: 0.7; margin-bottom: 25px; letter-spacing: 2px; }
         .input-group { margin-bottom: 20px; text-align: left; }
-
-        label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--primary-glow);
-            margin-left: 2px;
-        }
+        label { font-size: 0.75rem; text-transform: uppercase; color: var(--primary-glow); font-weight: bold; }
 
         input, select {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            color: white;
-            box-sizing: border-box;
-            transition: 0.3s;
+            width: 100%; padding: 12px; margin-top: 5px;
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 5px; color: var(--text-main); box-sizing: border-box; transition: 0.3s;
+            accent-color: var(--primary-glow); /* Colors the active day in date picker */
         }
+        input:focus, select:focus { outline: none; border-color: var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); }
 
-        select option { background: var(--bg-dark); }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 25px;
-        }
-        .actions a { color: var(--primary-glow); text-decoration: none; }
-
+        .actions { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 25px; }
+        .actions a { color: var(--primary-glow); text-decoration: none; font-weight: bold; }
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
 
         button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            background: var(--primary-glow);
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-            margin-bottom: 10px;
+            width: 100%; padding: 12px; border: none; border-radius: 5px;
+            background: var(--primary-glow); color: #000; font-weight: bold;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-bottom: 10px;
         }
+        button:hover { background: var(--text-main); color: var(--bg-color); box-shadow: 0 0 20px var(--primary-glow); }
 
-        button:hover {
-            background: #fff;
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-
-        .btn-back, .alt-login {
-            background: transparent;
-            border: 1px solid var(--primary-glow);
-            color: var(--primary-glow);
-        }
-
+        .btn-back, .alt-login { background: transparent; border: 1px solid var(--primary-glow); color: var(--primary-glow); }
         .reg-step { display: none; }
         .reg-step.active { display: block; }
-
         .signup-text { font-size: 0.9rem; margin-top: 25px; opacity: 0.8; }
         .signup-text a { color: var(--primary-glow); text-decoration: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div class="theme-switch">
+        <span>DARK</span>
+        <label class="switch">
+            <input type="checkbox" id="theme-toggle" onclick="toggleTheme()">
+            <span class="slider"></span>
+        </label>
+        <span>LIGHT</span>
+    </div>
 
     <div class="settings-container">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -201,7 +159,6 @@
         <div class="bar" style="--duration: 0.8s;"></div>
         <div class="bar" style="--duration: 1.5s;"></div>
         <div class="bar" style="--duration: 1.0s;"></div>
-        <div class="bar" style="--duration: 1.3s;"></div>
     </div>
 
     <canvas id="bg-canvas"></canvas>
@@ -209,18 +166,12 @@
     <div id="loginCard" class="login-card active">
         <h2>MONITOR SYSTEM</h2>
         <form>
-            <div class="input-group">
-                <input type="text" placeholder="Username or Email" required>
-            </div>
-            <div class="input-group">
-                <input type="password" placeholder="Password" required>
-            </div>
-            
+            <div class="input-group"><input type="text" placeholder="Username or Email" required></div>
+            <div class="input-group"><input type="password" placeholder="Password" required></div>
             <div class="actions">
-                <label style="cursor: pointer; color: white;"><input type="checkbox" style="width: auto; margin-right: 5px;"> Remember me</label>
+                <label style="cursor: pointer;"><input type="checkbox" style="width: auto; margin-right: 5px;"> Remember me</label>
                 <a href="#">Forgot Password?</a>
             </div>
-
             <button type="submit">LOGIN</button>
             <button type="button" class="alt-login">LOGIN WITH PHONE NUMBER</button>
         </form>
@@ -230,27 +181,15 @@
     <div id="enrollmentCard" class="login-card">
         <h2>USER ENROLLMENT</h2>
         <div class="step-indicator" id="step-text">STEP 1: PERSONAL IDENTITY</div>
-
         <form id="regForm">
             <div class="reg-step active" id="step1">
-                <div class="input-group">
-                    <label>First Name</label>
-                    <input type="text" placeholder="e.g. Kael" required>
-                </div>
-                <div class="input-group">
-                    <label>Last Name</label>
-                    <input type="text" placeholder="e.g. Vance" required>
-                </div>
-                <div class="input-group">
-                    <label>Date of Birth</label>
-                    <input type="date" required>
-                </div>
+                <div class="input-group"><label>First Name</label><input type="text" placeholder="e.g. Kael" required></div>
+                <div class="input-group"><label>Last Name</label><input type="text" placeholder="e.g. Vance" required></div>
+                <div class="input-group"><label>Date of Birth</label><input type="date" required></div>
                 <button type="button" onclick="nextStep(2)">CONTINUE</button>
             </div>
-
             <div class="reg-step" id="step2">
-                <div class="input-group">
-                    <label>Gender</label>
+                <div class="input-group"><label>Gender</label>
                     <select required>
                         <option value="" disabled selected>Select Gender</option>
                         <option value="male">Male</option>
@@ -259,64 +198,57 @@
                         <option value="undisclosed">Undisclosed</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" placeholder="name@network.com" required>
-                </div>
-                <div class="input-group">
-                    <label>Phone Number</label>
-                    <input type="tel" placeholder="+1 000-000-0000" required>
-                </div>
+                <div class="input-group"><label>Email Address</label><input type="email" placeholder="name@network.com" required></div>
+                <div class="input-group"><label>Phone Number</label><input type="tel" placeholder="+1 000-000-0000" required></div>
                 <div class="btn-row">
                     <button type="button" class="btn-back" onclick="nextStep(1)">BACK</button>
                     <button type="button" onclick="nextStep(3)">CONTINUE</button>
                 </div>
             </div>
-
             <div class="reg-step" id="step3">
-                <div class="input-group">
-                    <label>System Username</label>
-                    <input type="text" placeholder="unique_id_01" required>
-                </div>
-                <div class="input-group">
-                    <label>Access Password</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
-                <div class="input-group">
-                    <label>Confirm Password</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
+                <div class="input-group"><label>System Username</label><input type="text" placeholder="unique_id_01" required></div>
+                <div class="input-group"><label>Access Password</label><input type="password" placeholder="••••••••" required></div>
+                <div class="input-group"><label>Confirm Password</label><input type="password" placeholder="••••••••" required></div>
                 <div class="btn-row">
                     <button type="button" class="btn-back" onclick="nextStep(2)">BACK</button>
                     <button type="submit">INITIALIZE ACCOUNT</button>
                 </div>
             </div>
         </form>
-
         <p class="signup-text">Already have a clearance? <a onclick="toggleCards('loginCard')">Login</a></p>
     </div>
 
     <script>
-        /* Card Toggling */
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.checked = true;
+        }
+
+        function toggleTheme() {
+            if (themeToggle.checked) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
         function toggleCards(cardId) {
             document.querySelectorAll('.login-card').forEach(c => c.classList.remove('active'));
             document.getElementById(cardId).classList.add('active');
         }
 
-        /* Multi-step Logic */
         function nextStep(step) {
             document.querySelectorAll('.reg-step').forEach(el => el.classList.remove('active'));
             document.getElementById('step' + step).classList.add('active');
-            
-            const indicators = [
-                "STEP 1: PERSONAL IDENTITY",
-                "STEP 2: CONTACT ASSIGNMENT",
-                "STEP 3: CREDENTIAL SECURITY"
-            ];
+            const indicators = ["STEP 1: PERSONAL IDENTITY", "STEP 2: CONTACT ASSIGNMENT", "STEP 3: CREDENTIAL SECURITY"];
             document.getElementById('step-text').innerText = indicators[step-1];
         }
 
-        /* Background Animation Script */
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -337,23 +269,20 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00f2ff';
-            ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
+            const pColor = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
+            ctx.fillStyle = pColor;
+            ctx.strokeStyle = pColor + '22';
             
             particles.forEach((p, i) => {
-                p.x += p.vx;
-                p.y += p.vy;
+                p.x += p.vx; p.y += p.vy;
                 if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
                 if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2); ctx.fill();
                 for(let j = i + 1; j < particles.length; j++) {
                     let p2 = particles[j];
                     let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
                     if(dist < 150) {
-                        ctx.beginPath(); ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                     }
                 }
             });
@@ -361,8 +290,7 @@
         }
 
         window.addEventListener('resize', init);
-        init();
-        draw();
+        init(); draw();
     </script>
 </body>
 </html>
