@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1770476117154,
+    "fullName": "tejeshwar",
+    "username": "tejeshwar",
+    "org": "ntg",
+    "email": "ajja@gmail.com",
+    "phone": "7207526924",
+    "dob": "2010-06-05",
+    "password": "Hey@2005",
+    "createdAt": "2026-02-07T14:55:17.154Z"
+  },
+  {
+    "id": 1770478880232,
+    "fullName": "venkat tejeshwar",
+    "username": "kk1234",
+    "org": "monta",
+    "email": "tejeshwar1728@gmail.com",
+    "phone": "7207526924",
+    "dob": "2006-09-09",
+    "password": "56rrfvcR",
+    "createdAt": "2026-02-07T15:41:20.232Z"
+  },
+  {
+    "id": 1770558155245,
+    "fullName": "venkat tejeshwar",
+    "username": "tejesh",
+    "org": "aas",
+    "email": "kdgamer.704@gmail.com",
+    "phone": "7207526924",
+    "dob": "2013-02-04",
+    "password": "Hey123",
+    "createdAt": "2026-02-08T13:42:35.245Z"
+  },
+  {
+    "id": 1770572610532,
+    "fullName": "venkat tejeshwar",
+    "username": "abbavaram",
+    "org": "aas",
+    "email": "venkattejeshwar@gmail.com",
+    "phone": "7207526924",
+    "dob": "2010-01-08",
+    "password": "Hey@2005",
+    "createdAt": "2026-02-08T17:43:30.532Z"
+  },
+  {
+    "id": 1770573938634,
+    "fullName": "Lasya",
+    "username": "laraxxx",
+    "org": "xhhsh",
+    "email": "lala@gmail.com",
+    "phone": "1234567890",
+    "dob": "2013-07-19",
+    "password": "Hellooo34",
+    "createdAt": "2026-02-08T18:05:38.634Z"
+  }
+]

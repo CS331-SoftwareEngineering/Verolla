@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root{
+        --text: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.72);
+        --line: rgba(255, 255, 255, 0.24); 
+        --lineFocus: rgba(255,255,255,.68);
+        --shadow: 0 18px 50px rgba(0,0,0,.35);
+      }
+
+      *{ box-sizing:border-box; }
+      html,body{ height:100%; }
+      body{
+        margin:0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background:#000;
+        overflow:hidden;
+      }
+
+      .bg{
+        position:fixed;
+        inset:0;
+        z-index:-4;
+        overflow:hidden;
+        background:#000;
+      }
+      .bg video{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        filter: saturate(1.05) contrast(1.02) brightness(1.02);
+      }
+
+      .overlay{
+        position:fixed;
+        inset:0;
+        z-index:-3;
+        background:
+          linear-gradient(90deg, rgba(0,0,0,.38) 0%, rgba(0,0,0,.12) 42%, rgba(0,0,0,.04) 70%, rgba(0,0,0,.00) 100%),
+          linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.16));
+      }
+
+      .noise{
+        position:fixed;
+        inset:0;
+        z-index:-2;
+        pointer-events:none;
+        opacity:.06;
+        mix-blend-mode: overlay;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+      }
+
+      .wrap{
+        min-height:100%;
+        display:flex;
+        align-items:center;
+        justify-content: flex-start;
+        padding-left: 10%; 
+        padding-right: clamp(18px, 4vw, 56px);
+      }
+
+      .stack{
+        width: min(420px, 92vw);
+        display:grid;
+        gap: 18px;
+        color: var(--text);
+        text-shadow: 0 14px 40px rgba(0,0,0,.35);
+        background: rgba(0, 0, 0, 0.03);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 40px;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      .brand{
+        display:flex;
+        align-items:center;
+        gap: 12px;
+      }
+      .mark{
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(255,255,255,.38), rgba(255,255,255,.10));
+        border: 1px solid rgba(255,255,255,.28);
+        box-shadow: var(--shadow);
+      }
+      .brandText strong{
+        display:block;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .brandText small{
+        display:block;
+        margin-top:2px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      h1{
+        margin: 4px 0 0;
+        font-size: clamp(30px, 4vw, 40px);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+      }
+      .lead{
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 13px;
+        max-width: 42ch;
+      }
+
+      form{ display:grid; gap: 14px; margin-top: 6px; }
+
+      .field{ display:grid; gap: 8px; }
+      .label{
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(255,255,255,.82);
+      }
+
+      .inputRow{
+        display:flex;
+        align-items:center;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
+        transition: border-color 160ms ease;
+      }
+      .inputRow:focus-within{
+        border-bottom-color: var(--lineFocus);
+      }
+
+      input{
+        width:100%;
+        border:0;
+        outline:0;
+        background: transparent;
+        color: var(--text);
+        font-size: 14px;
+        padding: 2px 2px 0;
+        caret-color: rgba(255,255,255,.92);
+      }
+      input::placeholder{ color: rgba(255,255,255,.52); }
+
+      .forgotLink {
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-block;
+        margin-top: 4px;
+      }
+      .forgotLink:hover { color: #fff; }
+
+      .eye-toggle {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: rgba(255,255,255,.6);
+        display: flex;
+        align-items: center;
+        transition: color 0.2s;
+      }
+      .eye-toggle:hover { color: #fff; }
+
+      .btn{
+        margin-top: 8px;
+        width: 100%;
+        border: 1px solid rgba(255,255,255,.22);
+        cursor:pointer;
+        padding: 12px 16px;
+        border-radius: 999px;
+        color: rgba(255,255,255,.95);
+        font-weight: 800;
+        letter-spacing: .2px;
+        background: rgba(0,0,0,.22);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 18px 44px rgba(0,0,0,.30);
+        transition: transform 140ms ease, background 140ms ease;
+      }
+      .btn:hover{ transform: translateY(-1px); background: rgba(0,0,0,.28); }
+
+      .sub{
+        margin-top: 8px;
+        text-align:left;
+        font-size: 12px;
+        color: rgba(255,255,255,.78);
+      }
+      .sub a{
+        color: rgba(255,255,255,.92);
+        text-decoration:none;
+        font-weight:800;
+      }
+      .sub a:hover{ text-decoration: underline; }
+
+      .icon{
+        width:16px;
+        height:16px;
+        opacity:.9;
+        flex:0 0 auto;
+        color: rgba(255,255,255,.9);
+      }
+
+      @media (max-width: 600px){
+        .wrap { justify-content: center; padding-left: 4vw; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="bg" aria-hidden="true">
+      <video autoplay muted loop playsinline preload="auto">
+        <source src="./a3b1cc1f-33d2-4abc-9efb-0f22498584f5.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="overlay" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+
+    <main class="wrap">
+      <section class="stack" aria-label="Login form on video">
+        <div class="brand" aria-label="Brand">
+          <span class="mark" aria-hidden="true"></span>
+          <div class="brandText">
+            <strong>Verolla</strong>
+            <small>Access portal</small>
+          </div>
+        </div>
+
+        <div>
+          <h1>Login</h1>
+          <p class="lead">Enter your details.</p>
+        </div>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)" novalidate>
+          <div class="field">
+            <div class="label">User name or email</div>
+            <div class="inputRow">
+              <input id="identifier" name="identifier" type="text" placeholder="Enter user name or email" required />
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M4.5 20c1.3-3.7 4.1-6 7.5-6s6.2 2.3 7.5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Password</div>
+            <div class="inputRow">
+              <input id="password" name="password" type="password" placeholder="Enter password" minlength="6" required />
+              <button type="button" class="eye-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+                <svg id="eyeIcon" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <div>
+              <a href="javascript:void(0)" class="forgotLink" onclick="handleForgot()">Forgot password?</a>
+            </div>
+          </div>
+
+          <button class="btn" type="submit">Login</button>
+
+          <div class="sub">
+            Don’t have account?
+            <a href="./signup.html" onclick="return goSignup(event)">Sign Up</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      function togglePassword() {
+        const passInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passInput.type === 'password') {
+          passInput.type = 'text';
+          eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+          passInput.type = 'password';
+          eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const identifier = document.getElementById('identifier').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        if (!identifier) {
+          toast("Please enter username or email");
+          return false;
+        }
+        
+        if (!password) {
+          toast("Please enter password");
+          return false;
+        }
+        
+        toast("Authenticating...");
+        
+        try {
+          const response = await fetch('http://localhost:3000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier, password })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            toast(`Welcome back, ${data.user.fullName || data.user.username}!`);
+            localStorage.setItem('user', JSON.stringify(data.user));
+          } else {
+            toast(data.message || 'Login failed');
+          }
+        } catch (error) {
+          toast('Server error. Please try again.');
+          console.error('Login error:', error);
+        }
+        return false;
+      }
+
+      async function handleForgot() {
+        const identifier = document.getElementById('identifier').value.trim();
+        
+        if (!identifier) {
+          toast("Please enter username or email");
+          return;
+        }
+        
+        try {
+          const response = await fetch('http://localhost:3000/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier })
+          });
+          
+          const data = await response.json();
+          toast(data.message);
+        } catch (error) {
+          toast('Server error. Please try again.');
+        }
+      }
+
+      function goSignup(e){
+        toast("Opening Sign Up…");
+        return true;
+      }
+
+      function toast(message) {
+        const existing = document.querySelector(".custom-toast");
+        if (existing) existing.remove();
+
+        const el = document.createElement("div");
+        el.className = "custom-toast";
+        el.textContent = message;
+        el.style.cssText = `
+          position: fixed; left: 24px; bottom: 24px; padding: 10px 16px;
+          border-radius: 14px; z-index: 9999; font-family: Inter, sans-serif;
+          font-size: 13px; font-weight: 700; border: 1px solid rgba(255,255,255,.22);
+          backdrop-filter: blur(10px); color: #fff; background: rgba(0,0,0,.4);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2500);
+      }
+    </script>
+  </body>
+</html>
