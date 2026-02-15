@@ -6,7 +6,6 @@ The Authentication Component is responsible for securing access to the system. I
 ### Responsibilities:
 - User login and logout functionality  
 - Credential validation (username/password verification)  
-- Session or token generation and validation  
 - Secure access control to protected resources  
 
 This component acts as the entry point to the system and maintains system security by preventing unauthorized access.
@@ -32,9 +31,8 @@ This component ensures structured user administration and supports role-based ac
 The Dashboard Component provides the visual interface for interacting with the monitoring system.
 
 ### Responsibilities:
-- Displaying real-time system metrics  
+- Displaying real-time system metrics and system Health
 - Showing active and historical alerts  
-- Providing administrative controls  
 - Visualizing monitoring data  
 
 It serves as the presentation layer that enables users to observe system performance and manage configurations effectively.
