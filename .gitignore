@@ -1,0 +1,4 @@
+node_modules/
+.env
+auto_commit.ps1
+*.zip
