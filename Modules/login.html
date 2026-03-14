@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Login</title>
+    <title>Login | Verolla</title>
+    <link rel="icon" type="image/png" href="./logo.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -95,12 +96,20 @@
         gap: 12px;
       }
       .mark{
-        width: 34px;
-        height: 34px;
+        width: 42px;
+        height: 42px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(255,255,255,.38), rgba(255,255,255,.10));
-        border: 1px solid rgba(255,255,255,.28);
-        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.05);
+      }
+      .mark img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
       .brandText strong{
         display:block;
@@ -241,7 +250,9 @@
     <main class="wrap">
       <section class="stack" aria-label="Login form on video">
         <div class="brand" aria-label="Brand">
-          <span class="mark" aria-hidden="true"></span>
+          <div class="mark" aria-hidden="true">
+            <img src="./logo.png" alt="Verolla Logo">
+          </div>
           <div class="brandText">
             <strong>Verolla</strong>
             <small>Access portal</small>
@@ -333,6 +344,7 @@
           if (data.success) {
             toast(`Welcome back, ${data.user.fullName || data.user.username}!`);
             localStorage.setItem('user', JSON.stringify(data.user));
+            setTimeout(() => { window.location.href = './dashboard.html'; }, 800);
           } else {
             toast(data.message || 'Login failed');
           }

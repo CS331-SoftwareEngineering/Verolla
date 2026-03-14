@@ -228,6 +228,36 @@ app.get('/api/users', (req, res) => {
     res.json({ success: true, users: safeUsers });
 });
 
+// UPDATE PROFILE endpoint
+app.post('/api/update-profile', (req, res) => {
+    const { userId, username, email, password } = req.body;
+
+    if (!userId || !username || !email) {
+        return res.status(400).json({ success: false, message: 'Username and email are required' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Check for duplicate username/email (excluding current user)
+    const duplicate = users.find(u => u.id !== userId && (u.username === username.toLowerCase() || u.email === email.toLowerCase()));
+    if (duplicate) {
+        return res.status(400).json({ success: false, message: 'Username or email already taken' });
+    }
+
+    users[userIndex].username = username.toLowerCase();
+    users[userIndex].email = email.toLowerCase();
+    if (password && password.length >= 6) {
+        users[userIndex].password = password;
+    }
+    writeUsers(users);
+
+    res.json({ success: true, message: 'Profile updated successfully' });
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
