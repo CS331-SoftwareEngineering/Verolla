@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Alerts | Verolla</title>
+  <link rel="icon" type="image/png" href="./logo.png">
+  <meta name="description" content="Manage alerts and threshold configuration">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#06060b;--bg2:#0c0c14;--card:rgba(16,16,28,.82);--card-border:rgba(255,255,255,.06);--sidebar:#08080f;--sidebar-border:rgba(255,255,255,.06);--topbar:#0a0a12;--topbar-border:rgba(255,255,255,.06);--text:rgba(255,255,255,.92);--text2:rgba(255,255,255,.62);--text3:rgba(255,255,255,.38);--accent:#818cf8;--accent-bg:rgba(129,140,248,.12);--green:#34d399;--green-bg:rgba(52,211,153,.12);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,.12);--red:#f87171;--red-bg:rgba(248,113,113,.12);--input-bg:rgba(255,255,255,.04);--input-border:rgba(255,255,255,.10);--hover:rgba(255,255,255,.04);--radius:14px;--radius-sm:10px;--shadow:0 4px 24px rgba(0,0,0,.25);--font:'Inter',system-ui,-apple-system,sans-serif;}
+    [data-theme="light"]{--bg:#f0f2f5;--bg2:#e8eaed;--card:#ffffff;--card-border:rgba(0,0,0,.08);--sidebar:#ffffff;--sidebar-border:rgba(0,0,0,.08);--topbar:#ffffff;--topbar-border:rgba(0,0,0,.08);--text:rgba(0,0,0,.88);--text2:rgba(0,0,0,.55);--text3:rgba(0,0,0,.32);--accent:#6366f1;--accent-bg:rgba(99,102,241,.10);--green:#16a34a;--green-bg:rgba(22,163,74,.10);--yellow:#d97706;--yellow-bg:rgba(217,119,6,.10);--red:#dc2626;--red-bg:rgba(220,38,38,.10);--input-bg:rgba(0,0,0,.03);--input-border:rgba(0,0,0,.12);--hover:rgba(0,0,0,.04);--shadow:0 4px 24px rgba(0,0,0,.08);}
+    *{box-sizing:border-box;margin:0;padding:0;}html,body{height:100%;}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
+    .app{display:flex;height:100vh;width:100vw;}
+    .sidebar{width:240px;min-width:240px;height:100vh;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:24px 0;transition:background .3s,border .3s;z-index:10;}
+    .sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 24px;margin-bottom:32px;}
+    .sidebar-logo{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .sidebar-logo img{width:100%;height:100%;object-fit:cover;}
+    .sidebar-brand-text{font-weight:800;font-size:17px;letter-spacing:-.02em;}
+    .sidebar-brand small{display:block;font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
+    .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 12px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);color:var(--text2);text-decoration:none;font-size:13px;font-weight:600;transition:all .15s;cursor:pointer;}
+    .nav-item:hover{background:var(--hover);color:var(--text);}
+    .nav-item.active{background:var(--accent-bg);color:var(--accent);}
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+    .nav-item.logout{margin-top:auto;color:var(--red);}
+    .nav-item.logout:hover{background:var(--red-bg);}
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{height:60px;min-height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--topbar);border-bottom:1px solid var(--topbar-border);transition:background .3s,border .3s;}
+    .topbar-left{display:flex;align-items:center;gap:16px;}
+    .topbar-title{font-size:15px;font-weight:700;}
+    .status-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+    .status-badge.healthy{background:var(--green-bg);color:var(--green);}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+    .topbar-right{display:flex;align-items:center;gap:16px;}
+    .topbar-btn{position:relative;width:36px;height:36px;border-radius:var(--radius-sm);background:var(--input-bg);border:1px solid var(--input-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .15s;}
+    .topbar-btn:hover{background:var(--hover);color:var(--text);}
+    .topbar-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+    
+    /* Search Bar */
+    .search-container{
+      position:relative;margin-right:8px;display:flex;align-items:center;
+      background:var(--input-bg);border:1px solid var(--input-border);
+      border-radius:var(--radius-sm);padding:0 12px;width:240px;transition:all .2s;
+    }
+    .search-container:focus-within{border-color:var(--accent);width:280px;box-shadow:0 0 0 3px var(--accent-bg);}
+    .search-container svg{width:16px;height:16px;color:var(--text3);margin-right:8px;}
+    .search-input{
+      border:none;background:transparent;color:var(--text);font-size:13px;
+      font-family:var(--font);outline:none;width:100%;padding:8px 0;
+    }
+    .search-input::placeholder{color:var(--text3);}
+    .badge-count{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+    .topbar-user{display:flex;align-items:center;gap:10px;cursor:pointer;}
+    .topbar-avatar{width:32px;height:32px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:12px;}
+    .topbar-user-name{font-size:13px;font-weight:600;}
+    .content{flex:1;overflow-y:auto;padding:24px 28px;scroll-behavior:smooth;}
+    .content::-webkit-scrollbar{width:6px;}
+    .content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+    [data-theme="light"] .content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);}
+    .page-header{margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .page-header h1{font-size:24px;font-weight:800;letter-spacing:-.03em;}
+    .page-header p{font-size:13px;color:var(--text2);margin-top:4px;}
+
+    /* Button */
+    .btn-primary{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);
+      background:var(--accent);color:#fff;font-size:13px;font-weight:700;font-family:var(--font);
+      border:none;cursor:pointer;transition:all .15s;
+    }
+    .btn-primary:hover{opacity:.9;transform:translateY(-1px);}
+    .btn-primary svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+    /* Table */
+    .table-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:background .3s,border .3s;}
+    .table-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .table-card-title{font-size:14px;font-weight:700;}
+    table{width:100%;border-collapse:collapse;}
+    th{text-align:left;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;border-bottom:1px solid var(--card-border);}
+    td{font-size:13px;padding:10px 12px;border-bottom:1px solid var(--card-border);color:var(--text2);}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:var(--hover);}
+    .severity{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+    .severity.high{background:var(--red-bg);color:var(--red);}
+    .severity.medium{background:var(--yellow-bg);color:var(--yellow);}
+    .severity.low{background:var(--green-bg);color:var(--green);}
+    .status-pill{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+    .status-pill.active{background:var(--green-bg);color:var(--green);}
+    .status-pill.resolved{background:var(--input-bg);color:var(--text3);}
+
+    /* Action buttons in table */
+    .action-btn{
+      padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--font);
+      border:1px solid var(--card-border);background:var(--input-bg);color:var(--text2);cursor:pointer;transition:all .15s;
+    }
+    .action-btn:hover{background:var(--hover);color:var(--text);}
+    .action-btn.delete{color:var(--red);border-color:var(--red-bg);}
+    .action-btn.delete:hover{background:var(--red-bg);}
+
+    /* Modal */
+    .modal-overlay{
+      position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    }
+    .modal-overlay.open{display:flex;}
+    .modal{
+      width:min(460px,92vw);background:var(--card);border:1px solid var(--card-border);
+      border-radius:var(--radius);padding:28px;box-shadow:0 25px 60px rgba(0,0,0,.5);
+      animation:fadeUp .25s ease;
+    }
+    .modal h2{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-bottom:20px;}
+    .modal-field{display:grid;gap:6px;margin-bottom:16px;}
+    .modal-field input,.modal-field select{
+      padding:10px 14px;border-radius:var(--radius-sm);background:var(--input-bg);
+      border:1px solid var(--input-border);color:var(--text);font-size:13px;font-family:var(--font);
+      transition:border .15s;
+    }
+    .modal-field select option{background-color:var(--card);color:var(--text);}
+    .modal-field input:focus,.modal-field select:focus{outline:none;border-color:var(--accent);}
+    .modal-actions{display:flex;gap:10px;margin-top:24px;}
+    .modal-actions .btn-primary{flex:1;}
+    .btn-secondary{
+      flex:1;padding:10px 20px;border-radius:var(--radius-sm);background:var(--input-bg);
+      border:1px solid var(--input-border);color:var(--text2);font-size:13px;font-weight:700;
+      font-family:var(--font);cursor:pointer;transition:all .15s;
+    }
+    .btn-secondary:hover{background:var(--hover);color:var(--text);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .table-card{animation:fadeUp .4s ease both;}
+    @media(max-width:700px){.sidebar{display:none;}.topbar{padding:0 16px;}.content{padding:16px;}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="sidebar-logo"><img src="./logo.png" alt="Verolla Logo"></div><div><div class="sidebar-brand-text">Verolla</div><small>Monitoring</small></div></div>
+      <nav class="sidebar-nav">
+        <a href="./dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+        <a href="./metrics.html" class="nav-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Metrics</a>
+        <a href="./alerts.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Alerts</a>
+        <a href="./predictions.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10"/><path d="M12 6v6l4 2"/></svg>AI Predictions</a>
+        <a href="./notifications.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="./settings.html" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+        <a class="nav-item logout" id="nav-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="topbar-title">Alerts</span>
+          <div class="status-badge healthy"><span class="status-dot"></span>System Healthy</div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" class="search-input" placeholder="Search alerts..." id="searchInput">
+          </div>
+          <button class="topbar-btn" title="Notifications" onclick="location.href='./notifications.html'">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge-count" id="alertBadge" style="display:none;"></span>
+          </button>
+          <div class="topbar-user">
+            <div class="topbar-avatar" id="userAvatar">A</div>
+            <span class="topbar-user-name" id="userName">Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="page-header">
+          <div><h1>Alert Management</h1><p>Configure and manage monitoring alerts</p></div>
+          <button class="btn-primary" onclick="openModal()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create New Alert
+          </button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-card-header">
+            <span class="table-card-title">All Alerts</span>
+            <span style="font-size:12px;color:var(--text3);" id="alertCount">4 alerts</span>
+          </div>
+          <table>
+            <thead><tr><th>Alert ID</th><th>Service</th><th>Threshold</th><th>Severity</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="alertsBody">
+              <!-- Dynamically populated from backend -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Alert Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>Create New Alert</h2>
+      <div class="modal-field">
+        <label>Service</label>
+        <select id="alertService">
+          <option value="CPU">CPU</option>
+          <option value="Memory">Memory</option>
+          <option value="Disk">Disk</option>
+          <option value="Network">Network</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Threshold</label>
+        <input id="alertThreshold" type="text" placeholder="e.g. >80%">
+      </div>
+      <div class="modal-field">
+        <label>Severity</label>
+        <select id="alertSeverity">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="createAlert()">Create Alert</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const user=JSON.parse(localStorage.getItem('user'));
+    if(!user)location.href='./login.html';
+    else{const n=user.fullName||user.username||'Admin';document.getElementById('userName').textContent=n;document.getElementById('userAvatar').textContent=n.charAt(0).toUpperCase();}
+    (function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('verolla-theme')||'dark');})();
+    document.getElementById('nav-logout').addEventListener('click',function(){localStorage.removeItem('user');location.href='./login.html';});
+
+    let alertCounter=4;
+    function openModal(){document.getElementById('modalOverlay').classList.add('open');}
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+    document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+    // Render alerts to table
+    function renderAlerts(alerts) {
+        const tbody = document.getElementById('alertsBody');
+        tbody.innerHTML = '';
+        alerts.forEach(a => {
+            const sevLabel = a.severity.charAt(0).toUpperCase() + a.severity.slice(1);
+            const statClass = a.status === 'Active' ? 'active' : 'resolved';
+            
+            let btnHtml = '';
+            if (a.status === 'Active') {
+                btnHtml = `<button class="action-btn" style="margin-right:5px;color:var(--green);border-color:var(--green-bg)" onclick="resolveAlert('${a.id}')">Resolve</button>`;
+            }
+            btnHtml += `<button class="action-btn delete" onclick="deleteAlert('${a.id}')">Delete</button>`;
+
+            tbody.innerHTML += `<tr data-id="${a.id}">
+                <td>${a.id}</td><td>${a.service}</td><td>${a.threshold}</td>
+                <td><span class="severity ${a.severity}">● ${sevLabel}</span></td>
+                <td><span class="status-pill ${statClass}">${a.status}</span></td>
+                <td>${btnHtml}</td>
+            </tr>`;
+        });
+        updateCount();
+    }
+    
+    async function resolveAlert(id){
+      try {
+          await fetch('/api/alerts/'+id+'/resolve', { method: 'POST' });
+          fetchAlerts(); // reload immediately
+      } catch(e) { console.error(e); }
+    }
+
+    // Load alerts and global metrics (for the bell) from backend
+    async function fetchAlerts() {
+        try {
+            const res = await fetch('/api/alerts');
+            const data = await res.json();
+            if(data.success) renderAlerts(data.alerts);
+            
+            // Fetch metrics for the bell
+            const mRes = await fetch('/api/metrics');
+            const mData = await mRes.json();
+            const bell = document.getElementById('alertBadge');
+            if(mData.unreadCount > 0) {
+                bell.style.display = 'flex';
+                bell.textContent = mData.unreadCount;
+            } else {
+                bell.style.display = 'none';
+            }
+        } catch(e) { console.error(e); }
+    }
+    fetchAlerts();
+    setInterval(fetchAlerts, 3000);
+
+    async function createAlert(){
+      const service=document.getElementById('alertService').value;
+      const threshold=document.getElementById('alertThreshold').value.trim();
+      const severity=document.getElementById('alertSeverity').value;
+      if(!threshold){alert('Please enter a threshold');return;}
+      
+      try {
+          const res = await fetch('/api/alerts', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({service, threshold, severity})
+          });
+          const data = await res.json();
+          if(data.success) fetchAlerts(); // reload
+      } catch(e) { console.error(e); }
+
+      closeModal();
+      document.getElementById('alertThreshold').value='';
+    }
+
+    async function deleteAlert(id){
+      try {
+          await fetch('/api/alerts/'+id, { method: 'DELETE' });
+          fetchAlerts(); // reload
+      } catch(e) { console.error(e); }
+    }
+
+    function updateCount(){
+      const c=document.querySelectorAll('#alertsBody tr').length;
+      document.getElementById('alertCount').textContent=c+' alert'+(c!==1?'s':'');
+    }
+    /* Search Bar Logic */
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim().toLowerCase();
+        if (query) {
+          const rows = document.querySelectorAll('tbody tr');
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+              row.style.background = 'var(--accent-bg)';
+              setTimeout(() => { row.style.background = ''; }, 2000);
+            }
+          });
+        }
+      }
+    });
+
+  </script>
+</body>
+</html>
