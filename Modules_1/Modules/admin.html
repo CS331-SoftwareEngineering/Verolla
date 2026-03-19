@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin · Verolla</title>
+  <link rel="icon" type="image/png" href="./logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif;}
+    :root[data-theme="dark"]{
+      --bg:#0a0a0f;--card:#11111a;--border:rgba(255,255,255,.06);
+      --text:#fff;--text2:rgba(255,255,255,.55);
+      --accent:#818cf8;--accent-bg:rgba(129,140,248,.1);
+      --green:#4ade80;--green-bg:rgba(74,222,128,.12);
+      --red:#f87171;--red-bg:rgba(248,113,113,.12);
+      --yellow:#facc15;--yellow-bg:rgba(250,204,21,.12);
+      --hover:rgba(255,255,255,.04);--radius:12px;
+      --sidebar:#08080f;--sidebar-border:rgba(255,255,255,.06);
+    }
+    :root[data-theme="light"]{
+      --bg:#f7f7fb;--card:#fff;--border:rgba(0,0,0,.06);
+      --text:#0a0a0f;--text2:rgba(0,0,0,.55);
+      --accent:#6366f1;--accent-bg:rgba(99,102,241,.1);
+      --green:#16a34a;--green-bg:rgba(22,163,74,.12);
+      --red:#dc2626;--red-bg:rgba(220,38,38,.12);
+      --yellow:#ca8a04;--yellow-bg:rgba(202,138,4,.12);
+      --hover:rgba(0,0,0,.04);--radius:12px;
+      --sidebar:#fff;--sidebar-border:rgba(0,0,0,.08);
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-size:14px;}
+    body{display:flex;}
+    /* Sidebar */
+    .sidebar{width:240px;min-width:240px;height:100vh;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;}
+    .sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 24px;margin-bottom:32px;}
+    .sidebar-logo{width:36px;height:36px;border-radius:9px;overflow:hidden;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;}
+    .sidebar-logo img{width:100%;height:100%;object-fit:cover;}
+    .sidebar-brand-text{font-weight:800;font-size:17px;letter-spacing:-.02em;}
+    .sidebar-brand small{display:block;font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
+    .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 12px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:9px;text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:.15s;}
+    .nav-item:hover{background:var(--hover);color:var(--text);transform:translateX(4px);}
+    .nav-item.active{background:var(--accent-bg);color:var(--accent);}
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+    .nav-item.logout{margin-top:auto;color:var(--red);}
+    .nav-item.logout:hover{background:var(--red-bg);}
+
+    /* Main */
+    .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+    .topbar{height:64px;border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:var(--card);}
+    .topbar-title{font-size:17px;font-weight:700;}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+    .badge.admin{background:var(--accent-bg);color:var(--accent);}
+    .topbar-user{display:flex;align-items:center;gap:10px;}
+    .topbar-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+    .content{padding:28px 32px;flex:1;overflow-y:auto;}
+
+    .page-header{margin-bottom:24px;}
+    .page-header h1{font-size:24px;font-weight:800;letter-spacing:-.02em;}
+    .page-header p{color:var(--text2);font-size:13px;margin-top:4px;}
+
+    /* Stat cards */
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+    .stat-card-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+    .stat-card-value{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.02em;}
+    .stat-card-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+
+    /* Section card */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px;}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-size:14px;font-weight:700;}
+    .card-body{padding:8px 0;}
+
+    /* Table */
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{text-align:left;padding:10px 20px;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-weight:700;border-bottom:1px solid var(--border);}
+    td{padding:12px 20px;border-bottom:1px solid var(--border);}
+    tr:last-child td{border-bottom:none;}
+    .role-pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;}
+    .role-pill.admin{background:var(--accent-bg);color:var(--accent);}
+    .role-pill.user{background:var(--hover);color:var(--text2);}
+    .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+    .status-dot.up{background:var(--green);}
+    .status-dot.down{background:var(--red);}
+
+    /* Buttons */
+    .btn{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--text);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
+    .btn:hover{background:var(--hover);}
+    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .btn.primary:hover{filter:brightness(1.1);}
+    .btn.danger{color:var(--red);border-color:var(--red);}
+    .btn.danger:hover{background:var(--red-bg);}
+    .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);padding:14px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);transform:translateY(20px);opacity:0;transition:.25s;pointer-events:none;z-index:1000;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{border-left:3px solid var(--green);}
+    .toast.error{border-left:3px solid var(--red);}
+
+    .empty{padding:32px;text-align:center;color:var(--text2);font-size:13px;}
+
+    /* Maintenance */
+    .maint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;padding:16px 20px;}
+    .maint-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;}
+    .maint-card h3{font-size:13px;font-weight:700;margin-bottom:4px;}
+    .maint-card p{font-size:12px;color:var(--text2);margin-bottom:10px;}
+
+    @media(max-width:700px){.sidebar{display:none;}.content{padding:16px;}}
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><img src="./logo.png" alt="Verolla Logo" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'V'}))"></div>
+      <div><div class="sidebar-brand-text">Verolla</div><small>Admin</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="./metrics.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Metrics
+      </a>
+      <a href="./alerts.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Alerts
+      </a>
+      <a href="./predictions.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10"/><path d="M12 6v6l4 2"/></svg>
+        AI Predictions
+      </a>
+      <a href="./settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>
+        Settings
+      </a>
+      <a href="./admin.html" class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admin
+      </a>
+      <a class="nav-item logout" id="nav-logout">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="topbar-title">Admin Console</span>
+        <span class="badge admin">ADMIN</span>
+      </div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" id="adminAvatar">A</div>
+        <span style="font-size:13px;font-weight:600;" id="adminName">Admin</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <h1>Admin Console</h1>
+        <p>Manage users, audit activity, and run maintenance tasks. All actions are logged.</p>
+      </div>
+
+      <!-- System stats -->
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="stat-card-label">Loading…</div></div>
+      </div>
+
+      <!-- Users table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">User Management</div>
+          <button class="btn" onclick="loadUsers()">Refresh</button>
+        </div>
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="usersBody"><tr><td colspan="6" class="empty">Loading users…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Maintenance -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Maintenance</div></div>
+        <div class="maint-grid">
+          <div class="maint-card">
+            <h3>Purge Old Metrics</h3>
+            <p>Delete metric samples older than 7 days from the database to free space.</p>
+            <button class="btn primary" onclick="purgeMetrics()">Purge metrics &gt; 7 days</button>
+          </div>
+          <div class="maint-card">
+            <h3>Purge Resolved Alerts</h3>
+            <p>Remove all alerts that are already in the Resolved state.</p>
+            <button class="btn primary" onclick="purgeResolvedAlerts()">Purge resolved alerts</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Log -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Audit Log <span style="color:var(--text2);font-weight:500;font-size:12px;">(latest 100)</span></div>
+          <button class="btn" onclick="loadAudit()">Refresh</button>
+        </div>
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Details</th><th>IP</th></tr>
+            </thead>
+            <tbody id="auditBody"><tr><td colspan="6" class="empty">Loading audit log…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ─────── Theme ─────── */
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('verolla-theme') || 'dark');
+
+    /* ─────── Auth check ─────── */
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) { window.location.href = './login.html'; }
+    if (user && user.role !== 'admin') {
+      // not an admin — bounce to dashboard
+      alert('Admin access required.');
+      window.location.href = './dashboard.html';
+    }
+
+    /* ─────── Helpers ─────── */
+    const ADMIN_HDR = { 'Content-Type': 'application/json', 'x-admin-user': user ? user.username : '' };
+
+    function escapeHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function fmtDate(s){ if(!s) return '—'; try { const d=new Date(s); return d.toLocaleString(); } catch(_){ return s; } }
+    function toast(msg, kind='success'){
+      const t=document.getElementById('toast');
+      t.textContent=msg; t.className='toast show '+kind;
+      setTimeout(()=>{ t.className='toast '+kind; }, 3000);
+    }
+
+    document.getElementById('adminName').textContent = user.fullName || user.username;
+    document.getElementById('adminAvatar').textContent = (user.fullName || user.username || 'A').charAt(0).toUpperCase();
+
+    document.getElementById('nav-logout').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      window.location.href = './login.html';
+    });
+
+    /* ─────── Stats ─────── */
+    async function loadStats(){
+      try {
+        const r = await fetch('/api/admin/stats', { headers: ADMIN_HDR });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message || 'Failed');
+        const card = (label, val, sub='') =>
+          `<div class="stat-card"><div class="stat-card-label">${label}</div><div class="stat-card-value">${val}</div><div class="stat-card-sub">${sub}</div></div>`;
+        document.getElementById('statGrid').innerHTML = [
+          card('Total Users', d.users, `${d.activeUsers} active · ${d.admins} admin(s)`),
+          card('Active Alerts', d.alertsActive, `${d.alertsTotal} total`),
+          card('AI Predictions', d.predictionsActive, `${d.predictionsTotal} total`),
+          card('Metric Samples', d.metricsRows.toLocaleString(), 'logged in DB'),
+          card('Audit Entries', d.auditRows.toLocaleString(), 'in audit_log'),
+          card('Server Uptime', formatUptime(d.uptimeSec), 'since ' + new Date(d.startedAt).toLocaleTimeString()),
+          card('Mailer', d.mailerActive ? 'Live SMTP' : 'Mock', d.mailerActive ? 'sending real email' : 'console only'),
+          card('Node', d.nodeVersion, '')
+        ].join('');
+      } catch(e){ toast('Failed to load stats: '+e.message, 'error'); }
+    }
+    function formatUptime(sec){
+      const d=Math.floor(sec/86400), h=Math.floor((sec%86400)/3600), m=Math.floor((sec%3600)/60);
+      if (d) return `${d}d ${h}h`; if (h) return `${h}h ${m}m`; return `${m}m`;
+    }
+
+    /* ─────── Users ─────── */
+    async function loadUsers(){
+      try {
+        const r = await fetch('/api/admin/users', { headers: ADMIN_HDR });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const tbody = document.getElementById('usersBody');
+        if (!d.users.length) { tbody.innerHTML='<tr><td colspan="6" class="empty">No users yet.</td></tr>'; return; }
+        tbody.innerHTML = d.users.map(u => {
+          const isMe = u.id === user.id;
+          return `<tr>
+            <td><strong>${escapeHtml(u.fullName || u.username)}</strong><br><small style="color:var(--text2);">@${escapeHtml(u.username)}</small></td>
+            <td>${escapeHtml(u.email)}</td>
+            <td><span class="role-pill ${u.role}">${u.role}</span></td>
+            <td><span class="status-dot ${u.active?'up':'down'}"></span>${u.active?'Active':'Disabled'}</td>
+            <td>${fmtDate(u.lastLogin)}</td>
+            <td><div class="btn-row">
+              ${u.role==='admin'
+                ? `<button class="btn" onclick="setRole(${u.id},'user')" ${isMe?'disabled':''}>Demote</button>`
+                : `<button class="btn" onclick="setRole(${u.id},'admin')">Promote</button>`}
+              ${u.active
+                ? `<button class="btn danger" onclick="setActive(${u.id},false)" ${isMe?'disabled':''}>Disable</button>`
+                : `<button class="btn primary" onclick="setActive(${u.id},true)">Enable</button>`}
+              <button class="btn" onclick="resetPwd(${u.id},'${escapeHtml(u.username)}')">Reset Pwd</button>
+              <button class="btn danger" onclick="deleteUser(${u.id},'${escapeHtml(u.username)}')" ${isMe?'disabled':''}>Delete</button>
+            </div></td>
+          </tr>`;
+        }).join('');
+      } catch(e){ toast('Failed to load users: '+e.message, 'error'); }
+    }
+
+    async function setRole(id, role){
+      const r = await fetch('/api/admin/users/'+id+'/role', { method:'POST', headers: ADMIN_HDR, body: JSON.stringify({ role }) });
+      const d = await r.json();
+      if (d.success) { toast('Role updated to '+role); loadUsers(); loadStats(); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+    async function setActive(id, active){
+      const r = await fetch('/api/admin/users/'+id+'/active', { method:'POST', headers: ADMIN_HDR, body: JSON.stringify({ active }) });
+      const d = await r.json();
+      if (d.success) { toast('User '+(active?'enabled':'disabled')); loadUsers(); loadStats(); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+    async function resetPwd(id, username){
+      if (!confirm('Reset password for @'+username+'? A temporary password will be generated.')) return;
+      const r = await fetch('/api/admin/users/'+id+'/reset-password', { method:'POST', headers: ADMIN_HDR });
+      const d = await r.json();
+      if (d.success) { prompt('Temporary password for @'+username+' (give this to the user; they should change it on next login):', d.tempPassword); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+    async function deleteUser(id, username){
+      if (!confirm('Permanently delete @'+username+'? This cannot be undone.')) return;
+      const r = await fetch('/api/admin/users/'+id, { method:'DELETE', headers: ADMIN_HDR });
+      const d = await r.json();
+      if (d.success) { toast('User deleted'); loadUsers(); loadStats(); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+
+    /* ─────── Maintenance ─────── */
+    async function purgeMetrics(){
+      if (!confirm('Delete all metric samples older than 7 days?')) return;
+      const r = await fetch('/api/admin/maintenance/purge-metrics', { method:'POST', headers: ADMIN_HDR, body: JSON.stringify({ days: 7 }) });
+      const d = await r.json();
+      if (d.success) { toast('Purged '+d.deleted+' metric rows'); loadStats(); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+    async function purgeResolvedAlerts(){
+      if (!confirm('Delete all resolved alerts?')) return;
+      const r = await fetch('/api/admin/maintenance/purge-resolved-alerts', { method:'POST', headers: ADMIN_HDR });
+      const d = await r.json();
+      if (d.success) { toast('Purged '+d.deleted+' resolved alert rows'); loadStats(); loadAudit(); }
+      else toast(d.message || 'Failed', 'error');
+    }
+
+    /* ─────── Audit log ─────── */
+    async function loadAudit(){
+      try {
+        const r = await fetch('/api/admin/audit?limit=100', { headers: ADMIN_HDR });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        const tbody = document.getElementById('auditBody');
+        if (!d.entries.length) { tbody.innerHTML='<tr><td colspan="6" class="empty">No audit entries yet.</td></tr>'; return; }
+        tbody.innerHTML = d.entries.map(e => `<tr>
+          <td>${fmtDate(e.createdAt)}</td>
+          <td>@${escapeHtml(e.actor)}</td>
+          <td><strong>${escapeHtml(e.action)}</strong></td>
+          <td>${escapeHtml(e.target || '—')}</td>
+          <td>${escapeHtml(e.details || '—')}</td>
+          <td><small>${escapeHtml(e.ip || '—')}</small></td>
+        </tr>`).join('');
+      } catch(e){ toast('Failed to load audit: '+e.message, 'error'); }
+    }
+
+    /* Initial load */
+    loadStats(); loadUsers(); loadAudit();
+    setInterval(loadStats, 15000);
+  </script>
+</body>
+</html>
