@@ -2,40 +2,86 @@
 
 ## I. Core Functional Modules in Business Logic Layer
 
-Based on the implementation in `server.js`, the following are the core Business Logic Layer (BLL) modules of the system:
+Based on the implementation in `server.js`, the following are the core functional modules in the Business Logic Layer (BLL):
+
+---
 
 ### 1. Authentication & Identity Management Module
-- Validates user credentials during signup and login
-- Enforces rules like password strength, username format, and age restriction
-- Prevents duplicate usernames and emails
-- Handles profile updates
 
-Interaction with UI:
-- UI forms send user data -> API endpoints -> BLL validates -> response returned to UI
+**Validation Logic**
+- Enforces business rules for account creation
+- `validatePassword()` ensures password complexity
+- `validateDOB()` ensures user is at least 13 years old
+
+**Session & Access Control**
+- Verifies credentials during login
+- Prevents duplicate usernames and emails
+
+**Profile Management**
+- Handles updating user data via `/api/update-profile`
+
+**Interaction with UI**
+- UI forms send input -> API endpoints -> BLL validates -> response returned
+
+---
 
 ### 2. Continuous System Monitoring Module
-- Collects system metrics (CPU, memory) at regular intervals (every 3 seconds)
-- Calculates actual usage percentages
 
-Interaction with UI:
-- Dashboard requests metrics -> BLL processes data -> UI displays charts and stats
+**Data Aggregation**
+- Background engine runs every 3 seconds
+- Collects system data using:
+  - `os.cpus()`
+  - `os.totalmem()`
+
+**Metrics Calculation**
+- Computes CPU usage using tick differences over time
+- Calculates memory utilization percentage
+
+**Interaction with UI**
+- Dashboard fetches metrics -> BLL processes -> UI displays charts
+
+---
 
 ### 3. Threshold Evaluation & Alerting Module
-- Evaluates metrics against thresholds (CPU, memory)
-- Detects sustained anomalies (not just temporary spikes)
-- Generates incidents with severity, timestamps, and IDs
-- Triggers alert actions (e.g., email notifications)
 
-Interaction with UI:
-- Alerts fetched via API -> BLL filters & formats -> UI displays alerts
+**Rule Engine**
+- Evaluates metrics against thresholds:
+  - Memory > 90%
+  - CPU > 85%
+
+**Sustained State Tracking**
+- Tracks if CPU remains above threshold continuously
+- Requires condition to persist for 60 seconds
+
+**Incident Generation**
+- Creates incident objects with:
+  - Severity
+  - Timestamp
+  - Unique ID
+
+**Action Triggering**
+- Executes actions like `triggerRegisteredMailAlert()`
+
+**Interaction with UI**
+- Alerts fetched -> BLL processes -> UI displays alerts
+
+---
 
 ### 4. Notification & State Management Module
-- Maintains active incidents and historical logs
-- Tracks unread notifications
-- Manages notification states
 
-Interaction with UI:
-- UI notification panel -> API -> BLL -> returns processed notifications
+**Centralized State**
+- Maintains:
+  - `activeIncidents`
+  - `notificationLog`
+
+**User Awareness Tracking**
+- Tracks unread notifications (`unreadNotifications`)
+- Supports marking notifications as read
+
+**Interaction with UI**
+- Notification panel -> API -> BLL -> structured response
+
+---
 
 ### Overall Interaction Flow
 ```
@@ -54,87 +100,190 @@ Processed Response -> UI
 
 ## II-A. Business Rules Implementation
 
-Business rules define how the system behaves under different conditions.
+### 1. User Authentication & Identity Management Rules
 
-### 1. Authentication Rules
-- User must be at least 13 years old
-- Password must contain:
+**Age Restriction Rule**
+- Implemented using `validateDOB()`
+- Calculates age from date of birth
+- Rule: User must be >= 13 years and <= 120 years
+
+**Password Complexity Rule**
+- Implemented using `validatePassword()`
+- Rules:
   - Minimum 6 characters
-  - At least 1 uppercase, 1 lowercase, 1 number
-- Username must be 3-20 characters (alphanumeric + underscore)
+  - At least one uppercase letter
+  - At least one lowercase letter
+  - At least one number
 
-### 2. Uniqueness Rules
-- Email and username must be unique
-- Duplicate entries are rejected
+**Username Constraint Rule**
+- Implemented using `validateUsername()`
+- Regex: `/^[a-zA-Z0-9_]{3,20}$/`
+- Rule:
+  - 3-20 characters
+  - Only alphanumeric + underscore
 
-### 3. Monitoring Threshold Rules
-- Memory usage > 90% -> Alert
-- CPU usage > 85% for 60 seconds -> Incident
+**Uniqueness Rule**
+- Implemented using `users.find()`
+- Rule:
+  - Email and username must be unique
+  - Duplicate entries rejected with HTTP 400
 
-### 4. Alert Control Rules
-- Alerts are triggered only for sustained conditions
-- Duplicate alerts are suppressed using flags
+**Login Resolution Rule**
+- User can login using email or username
+- Input normalized to lowercase before matching
 
-### 5. Data Privacy Rules
-- Sensitive data (like passwords) is never sent to UI
-- Data is filtered before exposure
+---
+
+### 2. Continuous Monitoring Module Rules
+
+**Memory Threshold Rule**
+- If memory usage > 90%
+- Active alert count is incremented
+
+**CPU Sustained Threshold Rule**
+- CPU must exceed 85%
+- Must remain above threshold for 60 seconds continuously
+- If it drops below, tracking resets
+
+**Suppression & Throttling Rule**
+- Uses `alertSent` flag
+- Prevents duplicate alerts
+- Resets when system returns to normal
+
+---
+
+### 3. Data Privacy Rule
+
+**Safe Data Exposure**
+- Implemented in `/api/users` endpoint
+- Uses:
+```javascript
+const safeUsers = users.map(({ password, ...user }) => user);
+```
+
+- Rule: Passwords are never exposed to UI
 
 ---
 
 ## II-B. Validation Logic
 
-Validation ensures data correctness before processing.
+### 1. Format & Syntax Validation (Regex)
 
-### 1. Format Validation (Regex)
-- Email -> valid email format
-- Phone -> valid numeric format
-- Username -> restricted characters
+**Email Validation**
+- Regex: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`
+- Ensures proper email structure
 
-### 2. Business Rule Validation
-- Password strength enforced
-- Age verified using date of birth
+**Phone Validation**
+- Regex: `/^[\d\s\-+()]{10,15}$/`
+- Allows valid phone characters and length
 
-### 3. Data Integrity Validation
-- Required fields must be present
-- Password and confirm password must match
-- Duplicate users are prevented
+**Username Validation**
+- Regex: `/^[a-zA-Z0-9_]{3,20}$/`
+- Restricts invalid characters
 
-### 4. Data Sanitization
-- Trimming whitespace
-- Converting email/username to lowercase
+---
+
+### 2. Complex Business Rule Validation
+
+**Password Strength**
+- Checks:
+  - Uppercase
+  - Lowercase
+  - Number
+  - Minimum length
+- Returns specific error messages
+
+**Age Verification**
+- Parses DOB using `Date()`
+- Ensures valid age range
+
+---
+
+### 3. Data Integrity & Consistency Validation
+
+- Required fields checked in API endpoints
+- Rejects incomplete requests (HTTP 400)
+- Password must match confirm password
+- Prevents duplicate users using `.find()`
+
+---
+
+### 4. Data Sanitization (Normalization)
+
+Trims whitespace:
+```javascript
+fullName.trim()
+org.trim()
+```
+
+Converts to lowercase:
+```javascript
+email.toLowerCase()
+username.toLowerCase()
+```
 
 ---
 
 ## II-C. Data Transformation
 
-Data is transformed to make it suitable for the UI.
-
 ### 1. JSON Parsing & Serialization
-- Data read using `JSON.parse()`
-- Data stored using `JSON.stringify()`
 
-### 2. Aggregation for Dashboard
-- Combines CPU, memory, and alerts into a single response
-- Calculates active alerts count
+Transformation In - reads data using:
+```javascript
+JSON.parse(data)
+```
 
-### 3. Data Filtering
-- Only recent alerts are sent to UI
-- Large datasets are trimmed
+Transformation Out - writes data using:
+```javascript
+JSON.stringify(users, null, 2)
+```
 
-### 4. Data Enrichment
-- Converts timestamps into human-readable values (e.g., hours ago)
+---
 
-### 5. Security Transformation
-- Removes sensitive fields (like passwords) before sending data
+### 2. Aggregation & Composition (`/api/metrics`)
+
+Combines:
+- CPU usage
+- Memory usage
+- Active incidents
+
+Computes:
+```javascript
+activeIncidents.filter(a => a.status === 'Active').length
+```
+
+Limits dataset:
+```javascript
+recentAlerts: activeIncidents.slice(0, 4)
+```
+
+---
+
+### 3. Data Enrichment (`/api/notifications`)
+
+Converts timestamps into readable values:
+```javascript
+hoursAgo = (now - n.timestamp) / (1000 * 60 * 60)
+```
+
+---
+
+### 4. Security Redaction (`/api/users`)
+
+Removes sensitive fields:
+```javascript
+const safeUsers = users.map(({ password, ...user }) => user);
+```
 
 ---
 
 ## Conclusion
 
-The Business Logic Layer in this project:
-- Enforces business rules
-- Validates incoming data
-- Processes and monitors system metrics
-- Transforms and secures data before sending it to the UI
+The Business Logic Layer:
 
-It acts as the core layer connecting the UI and data layer, ensuring correct and secure system behavior.
+- Implements strict business rules
+- Performs comprehensive validation
+- Processes monitoring data and alerts
+- Transforms and secures data before sending to UI
+
+It acts as the core mediator between the presentation layer and data layer, ensuring correct, secure, and efficient system behavior.
