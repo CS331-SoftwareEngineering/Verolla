@@ -1,0 +1,164 @@
+Data Access Layer (DAL) Implementation Summary
+1. Database and Tables — database.js
+
+The database.js file initializes an SQLite database and creates four tables automatically when the server starts.
+
+Tables Overview
+Table Name	Purpose	Key Columns
+users	Stores user account data	id, fullName, username, org, email, phone, dob, password, createdAt
+alerts	Stores monitoring alerts	id, service, threshold, severity, status, time
+notifications	Logs alert notifications	id, time, service, alert, severity, status, channel, timestamp
+metrics_log	Stores system metrics	id, cpuUsage, memUsage, diskUsage, netInbound, netOutbound, recordedAt
+
+All tables are created using CREATE TABLE IF NOT EXISTS.
+
+2. Data Access Layer — dal.js
+
+The dal.js file acts as the Data Access Layer, handling all database interactions. It provides structured modules with CRUD operations.
+
+DAL Modules and Methods
+userDAL
+findAll()
+findById()
+findByEmailOrUsername()
+findDuplicate()
+insert()
+update()
+remove()
+alertDAL
+findAll()
+findById()
+insert()
+resolve()
+remove()
+notificationDAL
+findAll()
+count()
+insert() (auto-trims to last 50 records)
+metricsDAL
+logEntry()
+findRecent()
+How the DAL Architecture Works
+server.js (Business Logic)
+        |
+        | Calls DAL methods (no SQL here)
+        v
+dal.js (Data Access Layer)
+        |
+        | Contains all SQL queries
+        v
+database.js → SQLite Database (verolla.db)
+Key Idea
+server.js never writes SQL queries directly
+It only calls functions like:
+userDAL.insert(...)
+alertDAL.findAll()
+notificationDAL.insert(...)
+
+This ensures proper abstraction and separation of concerns.
+
+Testing Overview
+White Box Testing — whitebox.test.js
+
+White box testing checks internal logic, functions, and code structure directly.
+
+What It Covers
+Validation functions:
+validateEmail()
+validatePassword()
+validateUsername()
+validateDOB()
+DAL operations:
+Insert, retrieve, duplicate detection
+Alerts and notifications handling
+White Box Test Cases
+Email Validation (validateEmail)
+Valid email → returns true
+Email without @ → returns false
+Email without domain → returns false
+Empty string → returns false
+Password Validation (validatePassword)
+Strong password (meets all conditions) → pass
+Password too short → fail
+Password without uppercase → fail
+Username Validation (validateUsername)
+Valid username → pass
+Username too short → fail
+Username with special characters → fail
+Date of Birth Validation (validateDOB)
+Age greater than or equal to 13 → valid
+Age less than 13 → invalid
+Data Access Layer Testing
+userDAL.insert() and findById() → insert and retrieve user
+userDAL.findByEmailOrUsername() → correct lookup
+userDAL.findDuplicate() → detects duplicate
+Alert and Notification Testing
+alertDAL.insert() and findAll() → alert stored and retrieved
+notificationDAL.insert() and count() → notification added and counted
+
+Total White Box Test Cases: 17
+
+Black Box Testing — blackbox.test.js
+
+Black box testing checks system behavior through API endpoints without accessing internal code.
+
+Endpoints Tested
+/api/signup
+/api/login
+/api/forgot-password
+/api/users
+/api/update-profile
+/api/alerts
+/api/notifications
+/api/metrics
+Black Box Test Cases
+Signup (POST /api/signup)
+Valid user → 201 Created
+Missing required field → 400 Bad Request
+Duplicate email → 400 Bad Request
+Duplicate username → 400 Bad Request
+Password mismatch → 400 Bad Request
+Invalid email → 400 Bad Request
+Weak password → 400 Bad Request
+Login (POST /api/login)
+Correct credentials → 200 OK
+Wrong password → 401 Unauthorized
+Unknown user → 401 Unauthorized
+Missing fields → 400 Bad Request
+Forgot Password (POST /api/forgot-password)
+Existing user → 200 OK
+Unknown user → 404 Not Found
+Missing identifier → 400 Bad Request
+Users (GET /api/users)
+Fetch users → returns list without passwords
+Update Profile (POST /api/update-profile)
+Valid update → 200 OK
+Missing fields → 400 Bad Request
+Email conflict → 400 Bad Request
+Alerts
+GET /api/alerts → returns alerts
+POST /api/alerts/:id/resolve → 200 OK
+DELETE /api/alerts/:id → 200 OK
+Notifications
+GET /api/notifications → returns notifications
+GET /api/notifications/read → marks as read → 200 OK
+Metrics
+GET /api/metrics → returns system metrics
+
+Total Black Box Test Cases: 24
+
+Test Results
+
+Test Suites: 2 passed
+Tests: 41 passed
+
+Run Commands
+npm test            # Run all tests  
+npm run test:wb     # White box tests only  
+npm run test:bb     # Black box tests only  
+Final Conclusion
+Database and tables are properly created
+Data Access Layer is fully implemented with abstraction
+Business logic does not directly access SQL
+Both White Box and Black Box testing are completed
+All 41 test cases pass successfully
