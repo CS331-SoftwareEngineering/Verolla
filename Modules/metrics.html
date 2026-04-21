@@ -118,6 +118,7 @@
         <a href="./dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a href="./metrics.html" class="nav-item active"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Metrics</a>
         <a href="./alerts.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Alerts</a>
+        <a href="./predictions.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10"/><path d="M12 6v6l4 2"/></svg>AI Predictions</a>
         <a href="./notifications.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
         <a href="./settings.html" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
         <a class="nav-item logout" id="nav-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
@@ -137,7 +138,7 @@
           </div>
           <button class="topbar-btn" title="Notifications" onclick="location.href='./notifications.html'">
             <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-            <span class="badge-count">2</span>
+            <span class="badge-count" id="alertBadge" style="display:none;"></span>
           </button>
           <div class="topbar-user">
             <div class="topbar-avatar" id="userAvatar">A</div>
@@ -318,12 +319,42 @@
     applyThemeToCharts();
 
     /* Real-time */
-    setInterval(()=>{
-      [{c:cpuChart,b:62},{c:memChart,b:68},{c:diskChart,b:45}].forEach(o=>{o.c.data.datasets[0].data.shift();o.c.data.datasets[0].data.push(rng(o.b-15,o.b+15));o.c.update('none');});
-      netChart.data.datasets[0].data.shift();netChart.data.datasets[0].data.push(rng(320,540));
-      netChart.data.datasets[1].data.shift();netChart.data.datasets[1].data.push(rng(220,400));
-      netChart.update('none');
-    },3000);
+    setInterval(async () => {
+      try {
+        const response = await fetch('/api/metrics');
+        const data = await response.json();
+        
+        if (data.success) {
+          cpuChart.data.datasets[0].data.shift();
+          cpuChart.data.datasets[0].data.push(data.cpuUsage);
+          cpuChart.update('none');
+
+          memChart.data.datasets[0].data.shift();
+          memChart.data.datasets[0].data.push(data.memUsage);
+          memChart.update('none');
+          
+          diskChart.data.datasets[0].data.shift();
+          diskChart.data.datasets[0].data.push(data.diskUsage);
+          diskChart.update('none');
+          
+          netChart.data.datasets[0].data.shift();
+          netChart.data.datasets[0].data.push(data.netInbound);
+          netChart.data.datasets[1].data.shift();
+          netChart.data.datasets[1].data.push(data.netOutbound);
+          netChart.update('none');
+
+          const bell = document.getElementById('alertBadge');
+          if(data.unreadCount > 0) {
+              bell.style.display = 'flex';
+              bell.textContent = data.unreadCount;
+          } else {
+              bell.style.display = 'none';
+          }
+        }
+      } catch(e) {
+        console.error("Failed to fetch metrics", e);
+      }
+    }, 3000);
 
     /* Historical Data Table */
     (function(){
