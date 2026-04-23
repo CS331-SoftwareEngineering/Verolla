@@ -108,6 +108,7 @@
         <a href="./dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a href="./metrics.html" class="nav-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Metrics</a>
         <a href="./alerts.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Alerts</a>
+        <a href="./predictions.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10"/><path d="M12 6v6l4 2"/></svg>AI Predictions</a>
         <a href="./notifications.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
         <a href="./settings.html" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
         <a class="nav-item logout" id="nav-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
@@ -127,7 +128,7 @@
           </div>
           <button class="topbar-btn" title="Notifications" style="border-color:var(--accent);">
             <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-            <span class="badge-count">2</span>
+            <span class="badge-count" id="alertBadge" style="display:none;"></span>
           </button>
           <div class="topbar-user">
             <div class="topbar-avatar" id="userAvatar">A</div>
@@ -187,17 +188,46 @@
     (function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('verolla-theme')||'dark');})();
     document.getElementById('nav-logout').addEventListener('click',function(){localStorage.removeItem('user');location.href='./login.html';});
 
-    /* Sample notification data */
-    const notifications=[
-      {time:'10:20 AM',service:'CPU',alert:'Threshold Exceeded (>80%)',severity:'high',status:'Sent',channel:'Email',hoursAgo:0.2},
-      {time:'10:22 AM',service:'Memory',alert:'High Usage (>75%)',severity:'medium',status:'Sent',channel:'SMS',hoursAgo:0.2},
-      {time:'09:45 AM',service:'Disk',alert:'Storage Warning (>90%)',severity:'low',status:'Sent',channel:'Email',hoursAgo:1.5},
-      {time:'09:30 AM',service:'Network',alert:'Bandwidth Spike',severity:'medium',status:'Sent',channel:'Email',hoursAgo:2},
-      {time:'08:15 AM',service:'CPU',alert:'Threshold Exceeded (>80%)',severity:'high',status:'Sent',channel:'SMS',hoursAgo:3},
-      {time:'07:00 AM',service:'Memory',alert:'High Usage (>75%)',severity:'medium',status:'Sent',channel:'Email',hoursAgo:5},
-      {time:'Yesterday',service:'CPU',alert:'Critical Load',severity:'high',status:'Sent',channel:'SMS',hoursAgo:18},
-      {time:'Yesterday',service:'Disk',alert:'Storage Full',severity:'high',status:'Sent',channel:'Email',hoursAgo:22},
-    ];
+    /* Live notification data from backend */
+    let notifications = [];
+
+    async function fetchNotifications() {
+        try {
+            const res = await fetch('/api/notifications');
+            const data = await res.json();
+            if (data.success) {
+                notifications = data.notifications;
+                renderNotifications();
+            }
+        } catch(e) {
+            console.error("Failed to fetch notifications", e);
+        }
+    }
+    
+    // Fetch immediately and poll every 5 seconds
+    fetchNotifications();
+    setInterval(fetchNotifications, 5000);
+
+    // Call the server to mark notifications as read when this page is opened
+    fetch('/api/notifications/read').then(async () => {
+        // Also hide the local bell icon right away
+        const bell = document.getElementById('alertBadge');
+        if(bell) bell.style.display = 'none';
+        
+        // Let's also keep fetching the global unread count just in case new ones come in while we are on the page
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/metrics');
+                const data = await res.json();
+                if(data.unreadCount > 0) {
+                    bell.style.display = 'flex';
+                    bell.textContent = data.unreadCount;
+                } else {
+                    bell.style.display = 'none';
+                }
+            } catch(e) {}
+        }, 3000);
+    });
 
     function renderNotifications(){
       const svc=document.getElementById('filterService').value;
